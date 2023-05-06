@@ -1,7 +1,9 @@
 
 from nltk.corpus import wordnet as wn
+
 from progress_reporter import progress_wrapper
 from utils import replace_underscore_with_space
+
 
 @progress_wrapper
 def get_semantic_fields(word):

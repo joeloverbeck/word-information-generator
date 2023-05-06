@@ -1,12 +1,13 @@
 import os
+
 import nltk
 from nltk.collocations import BigramCollocationFinder
 from nltk.corpus import reuters
 from nltk.corpus import wordnet as wn
 from nltk.metrics import BigramAssocMeasures
 from nltk.probability import FreqDist
-from nltk.util import bigrams
 from nltk.stem import WordNetLemmatizer
+from nltk.util import bigrams
 
 NLTK_DOWNLOAD_FLAG_FILE = "nltk_downloads_complete.flag"
 

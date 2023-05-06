@@ -1,9 +1,9 @@
 
 
-from nltk.corpus import wordnet as wn
 from nltk.corpus import webtext
-from progress_reporter import progress_wrapper
+from nltk.corpus import wordnet as wn
 
+from progress_reporter import progress_wrapper
 from utils import check_word_exists, replace_underscore_with_space
 
 pos_map = {'n': 'noun', 'v': 'verb', 'a': 'adjective', 's': 'adjective', 'r': 'adverb'}

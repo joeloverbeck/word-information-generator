@@ -1,6 +1,7 @@
 import unittest
 
-from wordnet_utils import get_synonyms_antonyms, get_associated_nouns_verbs
+from wordnet_utils import get_associated_nouns_verbs, get_synonyms_antonyms
+
 
 class TestWordnetUtils(unittest.TestCase):
 

@@ -1,13 +1,18 @@
-import os
 import argparse
+import os
 import traceback
 
-from wordnet_utils import get_meanings, get_synonyms_antonyms, get_domain_words, get_associated_nouns_verbs, get_phrasal_verbs, get_alternative_words, get_idiomatic_expressions, get_pos_and_transitivity, get_related_phrases_and_expressions
-from nltk_helpers import download_nltk_datasets, get_word_frequencies, get_collocations, get_morphological_variations
-
-from semantic_relations import get_semantic_fields, get_semantic_relations
 from etymology_scraper import get_etymology
+from nltk_helpers import (download_nltk_datasets, get_collocations,
+                          get_morphological_variations, get_word_frequencies)
 from progress_reporter import progress_wrapper
+from semantic_relations import get_semantic_fields, get_semantic_relations
+from wordnet_utils import (get_alternative_words, get_associated_nouns_verbs,
+                           get_domain_words, get_idiomatic_expressions,
+                           get_meanings, get_phrasal_verbs,
+                           get_pos_and_transitivity,
+                           get_related_phrases_and_expressions,
+                           get_synonyms_antonyms)
 
 
 def write_section_to_file(f, title, items, use_table=False):

@@ -2,9 +2,8 @@ import functools
 
 from nltk.corpus import wordnet as wn
 from nltk.metrics.distance import edit_distance
+
 from progress_reporter import progress_wrapper
-
-
 
 
 class WordNotFoundError(Exception):

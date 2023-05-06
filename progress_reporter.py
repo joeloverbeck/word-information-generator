@@ -1,5 +1,6 @@
 from tqdm import tqdm
 
+
 # Add a wrapper function to show progress during the execution of a function
 def progress_wrapper(func):
     def wrapped_func(*args, **kwargs):
