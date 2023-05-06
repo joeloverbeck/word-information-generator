@@ -1,82 +1,47 @@
+"""This module provides a comprehensive analysis of a given word, including its meanings, synonyms, antonyms, etymology, and more. The analysis results are saved in an HTML file in the output directory.
+
+Functions:
+get_word_info(word)
+main()
+"""
+
 import argparse
 import os
 import traceback
 
-from etymology_scraper import get_etymology
+from html_writer import write_section_to_file
 from nltk_helpers import (
     download_nltk_datasets,
-    get_collocations,
-    get_morphological_variations,
-    get_word_frequencies,
 )
-from progress_reporter import progress_wrapper
-from semantic_relations import get_semantic_fields, get_semantic_relations
-from wordnet_utils import (
-    get_alternative_words,
-    get_associated_nouns_verbs,
-    get_domain_words,
-    get_idiomatic_expressions,
-    get_meanings,
-    get_phrasal_verbs,
-    get_pos_and_transitivity,
-    get_related_phrases_and_expressions,
-    get_synonyms_antonyms,
-)
-
-
-def write_section_to_file(f, title, items, use_table=False):
-    if items:
-        f.write(f"<h2>{title}</h2>\n")
-        if use_table:
-            f.write("<table>\n<tr>\n")
-            for i, item in enumerate(items):
-                f.write(f"<td>{item}</td>\n")
-                if (i + 1) % 4 == 0:
-                    f.write("</tr>\n<tr>\n")
-            f.write("</tr>\n</table>\n\n")
-        else:
-            f.write("<ul>\n")
-            for item in items:
-                f.write(f"<li>{item}</li>\n")
-            f.write("</ul>\n\n")
+from word_analysis import analyze_word
 
 
 def get_word_info(word):
+    """Generates detailed information about the given word and saves it in an HTML file in the output directory.
+    Args:
+        word (str): The word to analyze.
+
+    Raises:
+        ValueError: If the word is empty or None.
+    """
+
     if not word:
         raise ValueError("Word cannot be empty or None")
 
     download_nltk_datasets()
 
     try:
-        meanings = get_meanings(word)
-        synonyms, antonyms = get_synonyms_antonyms(word)
-        domain_words = get_domain_words(word)
-        associated_nouns, associated_verbs = get_associated_nouns_verbs(word)
-        semantic_fields = get_semantic_fields(word)
-        hyponyms, hypernyms, meronyms = get_semantic_relations(word)
-
-        # Get word frequencies for the original word and its synonyms
-        word_frequencies = get_word_frequencies(synonyms)
-
-        phrasal_verbs = get_phrasal_verbs(word)
-        collocations = get_collocations(synonyms)
-        morphological_variations = get_morphological_variations(word)
-
-        etymology_result = get_etymology(word)
-        alternative_words = get_alternative_words(word)
-        idiomatic_expressions = get_idiomatic_expressions(word)
-        pos_and_transitivity_results = get_pos_and_transitivity(word)
-        related_phrases_and_expressions = get_related_phrases_and_expressions(word)
+        analysis_results = analyze_word(word)
 
         parts_of_speech_strings = set()
-        for pos, transitivity in pos_and_transitivity_results:
+        for pos, transitivity in analysis_results["pos_and_transitivity"]:
             pos_string = pos
             if transitivity:
                 pos_string += f" ({transitivity})"
 
             parts_of_speech_strings.add(pos_string)
 
-        synonyms.add(word)
+        analysis_results["synonyms"].add(word)
 
         # Create the output directory if it doesn't exist
         output_directory = "output"
@@ -86,82 +51,121 @@ def get_word_info(word):
         html_filename = f"{word}_info.html"
         output_filepath = os.path.join(output_directory, html_filename)
 
-        with open(output_filepath, "w", encoding="utf-8") as f:
-            f.write(
+        with open(output_filepath, "w", encoding="utf-8") as file:
+            file.write(
                 f"<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>Information about {word}</title>\n<link rel='stylesheet' href='styles.css'>\n</head>\n<body>\n"
             )
-            f.write(f"<h1>Information about {word}</h1>\n")
+            file.write(f"<h1>Information about {word}</h1>\n")
 
-            write_section_to_file(f, f"Meaning of {word}", meanings)
+            # Write the analysis results to the HTML file using the write_section_to_file function
+
             write_section_to_file(
-                f, f"Part of speech for {word}", parts_of_speech_strings
+                file, f"Meaning of {word}", analysis_results["meanings"]
             )
             write_section_to_file(
-                f,
+                file, f"Part of speech for {word}", parts_of_speech_strings
+            )
+            write_section_to_file(
+                file,
                 f"Etymology of {word}",
-                [etymology_result] if etymology_result else [],
+                [analysis_results["etymology"]]
+                if analysis_results["etymology"]
+                else [],
             )
-            write_section_to_file(f, f"Synonyms of {word}", synonyms, use_table=True)
-            write_section_to_file(f, f"Antonyms of {word}", antonyms, use_table=True)
             write_section_to_file(
-                f,
-                f"Word frequencies",
-                [f"{w}: {freq}" for w, freq in word_frequencies.items()],
+                file,
+                f"Synonyms of {word}",
+                analysis_results["synonyms"],
                 use_table=True,
             )
             write_section_to_file(
-                f,
+                file,
+                f"Antonyms of {word}",
+                analysis_results["antonyms"],
+                use_table=True,
+            )
+            write_section_to_file(
+                file,
+                f"Word frequencies",
+                [
+                    f"{w}: {freq}"
+                    for w, freq in analysis_results["word_frequencies"].items()
+                ],
+                use_table=True,
+            )
+            write_section_to_file(
+                file,
                 f"Collocations for {word} and its synonyms",
                 [
                     f"{' '.join(bigram)} (Frequency: {freq})"
-                    for bigram, freq in collocations
+                    for bigram, freq in analysis_results["collocations"]
                 ],
             )
-            write_section_to_file(f, f"Phrasal verbs of {word}", phrasal_verbs)
             write_section_to_file(
-                f, f"Idiomatic expressions with {word}", idiomatic_expressions
+                file, f"Phrasal verbs of {word}", analysis_results["phrasal_verbs"]
             )
             write_section_to_file(
-                f,
+                file,
+                f"Idiomatic expressions with {word}",
+                analysis_results["idiomatic_expressions"],
+            )
+            write_section_to_file(
+                file,
                 f"Related phrases and expressions with {word}",
-                related_phrases_and_expressions,
+                analysis_results["related_phrases_and_expressions"],
             )
-            write_section_to_file(f, f"Semantic field(s) of {word}", semantic_fields)
             write_section_to_file(
-                f,
+                file,
+                f"Semantic field(s) of {word}",
+                analysis_results["semantic_fields"],
+            )
+            write_section_to_file(
+                file,
                 f"Hyponyms of {word}",
-                [synset.split(".")[0] for synset in hyponyms],
+                [synset.split(".")[0] for synset in analysis_results["hyponyms"]],
                 use_table=True,
             )
             write_section_to_file(
-                f,
+                file,
                 f"Hypernyms of {word}",
-                [synset.split(".")[0] for synset in hypernyms],
+                [synset.split(".")[0] for synset in analysis_results["hypernyms"]],
                 use_table=True,
             )
             write_section_to_file(
-                f,
+                file,
                 f"Meronyms of {word}",
-                [synset.split(".")[0] for synset in meronyms],
+                [synset.split(".")[0] for synset in analysis_results["meronyms"]],
                 use_table=True,
             )
             write_section_to_file(
-                f,
+                file,
                 f"Domain-specific words related to {word}",
-                [word for word in domain_words],
-            )
-            write_section_to_file(f, f"Alternative words for {word}", alternative_words)
-            write_section_to_file(
-                f, f"Associated nouns with {word}", associated_nouns, use_table=True
+                list(analysis_results["domain_words"]),
             )
             write_section_to_file(
-                f, f"Associated verbs with {word}", associated_verbs, use_table=True
+                file,
+                f"Alternative words for {word}",
+                analysis_results["alternative_words"],
             )
             write_section_to_file(
-                f, f"Morphological variations of {word}", morphological_variations
+                file,
+                f"Associated nouns with {word}",
+                analysis_results["associated_nouns"],
+                use_table=True,
+            )
+            write_section_to_file(
+                file,
+                f"Associated verbs with {word}",
+                analysis_results["associated_verbs"],
+                use_table=True,
+            )
+            write_section_to_file(
+                file,
+                f"Morphological variations of {word}",
+                analysis_results["morphological_variations"],
             )
 
-            f.write("</body>\n</html>")
+            file.write("</body>\n</html>")
             print(f"Information about {word} has been saved to {output_filepath}")
 
     except Exception as e:
@@ -170,6 +174,8 @@ def get_word_info(word):
 
 
 def main():
+    """Parses command-line arguments and calls the get_word_info function with the provided word."""
+
     # Use argparse for handling command-line arguments
     parser = argparse.ArgumentParser(
         description="Get detailed information about a given word."
