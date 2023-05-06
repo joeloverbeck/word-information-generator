@@ -29,10 +29,6 @@ jobs:
       with:
         # Path to check (defaults to current directory)
         path: ./
-    - name: Unit Testing With Python
-      # You may pin to the exact commit or the version.
-      # uses: PrajjawalBanati/Python-actions@a6d7420add2bf83557fec5ddf443f24f27e661fc
-      uses: PrajjawalBanati/Python-actions@0.0.1
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
