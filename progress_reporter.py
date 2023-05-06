@@ -8,4 +8,5 @@ def progress_wrapper(func):
             result = func(*args, **kwargs)
             progress_bar.update(1)
         return result
+
     return wrapped_func
