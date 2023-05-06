@@ -3,6 +3,8 @@
 Functions:
 analyze_word(word)
 
+Classes:
+WordAnalysisError
 
 """
 
@@ -27,45 +29,64 @@ from nltk_helpers import (
 )
 
 
+class WordAnalysisError(Exception):
+    """Custom exception class for handling word analysis errors."""
+
+    pass
+
+
 def analyze_word(word):
     """Delegates analyzing many aspects of the passed word, and returns the analyses as a dictionary.
     Args:
         word (str): The word to analyze
+    Raises:
+        WordAnalysisError: If any of the attempts to get information about the passed word fails.
 
     """
     analysis_results = {}
 
-    analysis_results["meanings"] = get_meanings(word)
-    analysis_results["synonyms"], analysis_results["antonyms"] = get_synonyms_antonyms(
-        word
-    )
-    analysis_results["domain_words"] = get_domain_words(word)
-    (
-        analysis_results["associated_nouns"],
-        analysis_results["associated_verbs"],
-    ) = get_associated_nouns_verbs(word)
-    analysis_results["semantic_fields"] = get_semantic_fields(word)
-    (
-        analysis_results["hyponyms"],
-        analysis_results["hypernyms"],
-        analysis_results["meronyms"],
-    ) = get_semantic_relations(word)
+    try:
+        analysis_results["meanings"] = get_meanings(word)
+        (
+            analysis_results["synonyms"],
+            analysis_results["antonyms"],
+        ) = get_synonyms_antonyms(word)
+        analysis_results["domain_words"] = get_domain_words(word)
+        (
+            analysis_results["associated_nouns"],
+            analysis_results["associated_verbs"],
+        ) = get_associated_nouns_verbs(word)
+        analysis_results["semantic_fields"] = get_semantic_fields(word)
+        (
+            analysis_results["hyponyms"],
+            analysis_results["hypernyms"],
+            analysis_results["meronyms"],
+        ) = get_semantic_relations(word)
 
-    # Get word frequencies for the original word and its synonyms
-    analysis_results["word_frequencies"] = get_word_frequencies(
-        analysis_results["synonyms"]
-    )
+        # Get word frequencies for the original word and its synonyms
+        analysis_results["word_frequencies"] = get_word_frequencies(
+            analysis_results["synonyms"]
+        )
 
-    analysis_results["phrasal_verbs"] = get_phrasal_verbs(word)
-    analysis_results["collocations"] = get_collocations(analysis_results["synonyms"])
-    analysis_results["morphological_variations"] = get_morphological_variations(word)
+        analysis_results["phrasal_verbs"] = get_phrasal_verbs(word)
+        analysis_results["collocations"] = get_collocations(
+            analysis_results["synonyms"]
+        )
+        analysis_results["morphological_variations"] = get_morphological_variations(
+            word
+        )
 
-    analysis_results["etymology"] = get_etymology(word)
-    analysis_results["alternative_words"] = get_alternative_words(word)
-    analysis_results["idiomatic_expressions"] = get_idiomatic_expressions(word)
-    analysis_results["pos_and_transitivity"] = get_pos_and_transitivity(word)
-    analysis_results[
-        "related_phrases_and_expressions"
-    ] = get_related_phrases_and_expressions(word)
+        analysis_results["etymology"] = get_etymology(word)
+        analysis_results["alternative_words"] = get_alternative_words(word)
+        analysis_results["idiomatic_expressions"] = get_idiomatic_expressions(word)
+        analysis_results["pos_and_transitivity"] = get_pos_and_transitivity(word)
+        analysis_results[
+            "related_phrases_and_expressions"
+        ] = get_related_phrases_and_expressions(word)
+
+    except Exception as e:
+        raise WordAnalysisError(
+            f"An error occurred while trying to analyze the word {word}. Exception: {e}"
+        )
 
     return analysis_results

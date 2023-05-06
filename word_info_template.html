@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Information about {{ word }}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Information about {{ word }}</h1>
+    {% for section_title, section_data, use_table in sections %}
+    <h2>{{ section_title }}</h2>
+    {% if use_table %}
+        <table>
+            <tr>
+            {% for item in section_data %}            
+                <td>{{ item }}</td>
+                {% if (loop.index0 + 1) % 12 == 0 %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tr>
+        </table>
+    {% else %}
+        <ul>
+        {% for item in section_data %}
+            <li>{{ item }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endfor %}
+</body>
+</html>
