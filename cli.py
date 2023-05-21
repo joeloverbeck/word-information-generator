@@ -8,6 +8,7 @@ main()
 import argparse
 import os
 import logging
+import webbrowser
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -38,6 +39,9 @@ def save_html_to_file(word, html_content):
         file.write(html_content)
 
     print(f"Information about {word} has been saved to {output_filepath}")
+
+    # Open the file in the default web browser
+    webbrowser.open("file://" + os.path.realpath(output_filepath))
 
 
 def prepare_html_content(word, analysis_results):
@@ -186,7 +190,7 @@ def prepare_html_content(word, analysis_results):
             (
                 f"Associated nouns with {word}",
                 analysis_results["associated_nouns"],
-                False,
+                True,
             )
         )
 
@@ -195,7 +199,7 @@ def prepare_html_content(word, analysis_results):
             (
                 f"Associated verbs with {word}",
                 analysis_results["associated_verbs"],
-                False,
+                True,
             )
         )
 
@@ -204,7 +208,7 @@ def prepare_html_content(word, analysis_results):
             (
                 f"Morphological variations of {word}",
                 analysis_results["morphological_variations"],
-                False,
+                True,
             )
         )
 
@@ -246,12 +250,16 @@ def main():
 
     try:
         get_word_info(args.word)
-    except WordAnalysisError as e:
-        print(e)
-        logging.error(f"An error occurred during word analysis: {e}", exc_info=True)
-    except ValueError as e:
-        print(e)
-        logging.error(f"An error occurred during value processing: {e}", exc_info=True)
+    except WordAnalysisError as exception:
+        print(exception)
+        logging.error(
+            f"An error occurred during word analysis: {exception}", exc_info=True
+        )
+    except ValueError as exception:
+        print(exception)
+        logging.error(
+            f"An error occurred during value processing: {exception}", exc_info=True
+        )
 
 
 if __name__ == "__main__":
